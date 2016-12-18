@@ -14,7 +14,7 @@ spread <- function(M,v,tmax,beta,gamma){
   A[1,] <- as.logical(v)
   for(i in 2:tmax){
     n_inf <- M%*%v  #a vector containing the number of infected neighbours of each node
-    inf <- n_inf >= rgeom(n,beta)
+    inf <- n_inf > rgeom(n,beta)
     cured <- as.logical(rbinom(n=n,size=1,prob=gamma)*A[i-1,]) #vector infected of nodes which are cured (with probability gamma)
     A[i,] <- as.logical((A[i-1,] | inf) & !cured) #an element is infected if it already was or gets infected this time step, and it hasn't been cured
   }
@@ -22,7 +22,7 @@ spread <- function(M,v,tmax,beta,gamma){
 }
 
 # Graphs ------------------------------------------------------------------
-n <- 4
+n <- 2000
 tree <- make_tree(n,children=2,mode = c("undirected"))
 
 scaleF <- barabasi.game(n,.05,directed=F)
@@ -72,9 +72,19 @@ plot(infectedEvolution(treeSpread))
 
 simulate <- function(graph,beta=.4,gamma=.8,p0=.05,tmax=30){
   initialInfected <- sample(c(1,0),length(V(graph)),replace=T,prob=c(p0,1-p0))
-  treeSpread <- spread(as_adj(kn),v=initialInfected,tmax=tmax,beta=beta,gamma=gamma)
+  treeSpread <- spread(as_adj(graph),v=initialInfected,tmax=tmax,beta=beta,gamma=gamma)
   infectedEvolution(treeSpread)
 }
 
-plot(simulate(scaleF,p0=1,beta=.05,gamma=.8,tmax=30))
 
+# beta,gamma close to threshold -------------------------------------------
+
+epsilon=.05
+thresholds = 1/sapply(graphs,largestEigenvalue)
+gamma <- .4
+beta <- gamma*thresholds[1]+epsilon
+yvalues <- simulate(tree,p0=.05,beta=beta,gamma=gamma,tmax=30)
+plot(yvalues,ylim = c(0,max(yvalues)))
+beta <- gamma*thresholds[1]-epsilon
+lines(simulate(tree,p0=.05,beta=beta,gamma=gamma,tmax=30))
+lines((beta-gamma)*n/beta)
