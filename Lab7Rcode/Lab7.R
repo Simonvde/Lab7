@@ -36,6 +36,7 @@ for(i in 1:n) knMatrix[i,i] <- 0
 kn <- graph_from_adjacency_matrix(knMatrix,mode=c("undirected"))
 
 graphs <- list(tree,scaleF,erdosRenyi,kn)
+graphNames <- c("tree","scaleFree","erdosRenyi","Complete")
 # Generate eigenvalues -----------------------------------------------------
 
 
@@ -47,8 +48,6 @@ largestEigenvalue <- function(graph){
                                   which="LM", maxiter=200,ldv=0))
   max(abs(baev$values))
 }
-
-sapply(graphs,largestEigenvalue)
 
 
 
@@ -79,12 +78,32 @@ simulate <- function(graph,beta=.4,gamma=.8,p0=.05,tmax=30){
 
 # beta,gamma close to threshold -------------------------------------------
 
-epsilon=.05
+#epsilon defines the percentage that beta/gamma differs from the threshold 1/lambda_1(graph)
+#The points are higher beta (above threshold), the lines is are lower beta (under threshold)
+fullSimulationPlot <- function(graph,graphName,gamma,epsilon,threshold){
+  betaThreshold <- gamma*threshold
+  
+  #above threshold
+  highBeta <- min(1,betaThreshold*(1+epsilon))
+  yvalues <- simulate(graph,beta=highBeta,gamma=gamma,tmax=100)
+  plot(yvalues,ylim = c(0,max(yvalues)),main=graphName)
+  
+  
+  lowBeta <- max(0,betaThreshold*(1-epsilon))
+  lines(simulate(graph,beta=lowBeta,gamma=gamma,tmax=100),col="red")
+  
+  print(c(lowBeta,highBeta,gamma))
+}
+
 thresholds = 1/sapply(graphs,largestEigenvalue)
-gamma <- .4
-beta <- gamma*thresholds[1]+epsilon
-yvalues <- simulate(tree,p0=.05,beta=beta,gamma=gamma,tmax=30)
-plot(yvalues,ylim = c(0,max(yvalues)))
-beta <- gamma*thresholds[1]-epsilon
-lines(simulate(tree,p0=.05,beta=beta,gamma=gamma,tmax=30))
-lines((beta-gamma)*n/beta)
+
+
+
+
+png(file="../images/thresholdSimulation")
+par(mfrow=c(2,2))
+for(i in 1:4){
+  fullSimulationPlot(graphs[[i]],graphNames[i],gamma=.4,epsilon=.2,thresholds[[i]])
+}
+dev.off()
+
