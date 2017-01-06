@@ -95,10 +95,47 @@
 
 \section{Introduction}
 
+We will simulate a SIS epidemic model on networks. We will use a binary tree, a scalefree graph, an Erdos-Renyi graph, a complete graph and a star graph. We will also look at their thresholds (the inverse of the highest eigenvalue of the graph) and try to see how they influence the epidemic behaviour.
+
+
 \section{Results}
 
+The following graphs are the result of a simulation on $5$ different graphs with $100$ timesteps. For every graph we took $\gamma=.1$, then we calculated the thresholdvalue for $\beta$. We increased $\beta$ by $10\%$ (plotted dots) and decreased $\beta$ by $10\%$ (plotted red line). We started with $5\%$ infected
+
+\begin{figure}[htbp] %  figure placement: here, top, bottom, or page
+   \centering
+   \includegraphics[width=\textwidth]{thresholdSimulation_tree} 
+   \label{tree}
+\end{figure}
+\begin{figure}[htbp] %  figure placement: here, top, bottom, or page
+   \centering
+   \includegraphics[width=\textwidth]{thresholdSimulation_scaleFree} 
+   \label{scaleFree}
+\end{figure}
+\begin{figure}[htbp] %  figure placement: here, top, bottom, or page
+   \centering
+   \includegraphics[width=\textwidth]{thresholdSimulation_erdosRenyi} 
+   \label{erdosRenyi}
+\end{figure}
+\begin{figure}[htbp] %  figure placement: here, top, bottom, or page
+   \centering
+   \includegraphics[width=\textwidth]{thresholdSimulation_complete} 
+   \label{complete}
+\end{figure}
+\begin{figure}[htbp] %  figure placement: here, top, bottom, or page
+   \centering
+   \includegraphics[width=\textwidth]{thresholdSimulation_star} 
+   \label{star}
+\end{figure}
+
 \section{Discussion}
+We notice that we see we crossed a threshold value for the complete and the Erdos-Renyi graph. The star graph, tree and scalefree graph, however, do not seem to have crossed any threshold. If we would 
+
+From this, we can conclude that the theory doesn't hold for some graphs. To be sure it does hold for the complete and Erdos-Renyi graph, we would have to do some more tests (values closer to the threshold, different numbers of vertices, run the simulation longer), but we are confident there is a clear threshold here.
 
 \section{Methods}
+To find the thresholds we used ARPACK, a package partially built in in igraph. It has fast methods for calculating the largest eigenvalue of a graph. Calculating the $5$ eigenvalues of the $5$ graphs with $2000$ vertices only takes seconds.
+
+For generating the graphs and plots we set a seed so it can be easily replicated.
 
 \end{document}
