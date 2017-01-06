@@ -17,7 +17,6 @@ spread <- function(M,v,tmax,beta,gamma){
     inf <- n_inf > rgeom(n,beta)
     cured <- as.logical(rbinom(n=n,size=1,prob=gamma)*A[i-1,]) #vector infected of nodes which are cured (with probability gamma)
     A[i,] <- as.logical((A[i-1,] | inf) & !cured) #an element is infected if it already was or gets infected this time step, and it hasn't been cured
-    
   }
   return (A)
 }
@@ -25,6 +24,7 @@ spread <- function(M,v,tmax,beta,gamma){
 
 
 # Graphs ------------------------------------------------------------------
+set.seed(1)
 n <- 2000
 tree <- make_tree(n,children=2,mode = c("undirected"))
 
@@ -35,15 +35,17 @@ erdosRenyi <- erdos.renyi.game(n,p=0.05,directed = F)
 knMatrix <- matrix(data=1,n,n)
 for(i in 1:n) knMatrix[i,i] <- 0
 
+star <- make_star(n,mode=c("undirected"))
+
 
 kn <- graph_from_adjacency_matrix(knMatrix,mode=c("undirected"))
 
-graphs <- list(tree,scaleF,erdosRenyi,kn)
-graphNames <- c("tree","scaleFree","erdosRenyi","Complete")
+graphs <- list(tree,scaleF,erdosRenyi,kn,star)
+graphNames <- c("tree","scaleFree","erdosRenyi","complete","star")
 # Generate eigenvalues -----------------------------------------------------
 
 
-#max(eigen(as_adjacency_matrix(erdosRenyi))$values)
+#Uses the arpack library built in in igraph to quickly compute the largest eigenvalue.
 largestEigenvalue <- function(graph){
   M <- as_adj(graph)
   f2 <- function(x, extra=NULL) { cat("."); as.vector(M %*% x) }
@@ -53,14 +55,9 @@ largestEigenvalue <- function(graph){
 }
 
 
-
 # Simulate -------------------------------------------------------------------
 
-
-infected <- sample(c(1,0),n,replace=T,prob=c(0.05,0.95))
-as.logical(infected)
-treeSpread <- spread(as_adj(kn),v=infected,tmax=100,beta=.1,gamma=.05)
-
+# Given a matrix with all infection states, count the number of infected persons in every state. return this as a vector.
 infectedEvolution <- function(spread){
   infected <- c()
   for(i in 1:length(spread[,1])){
@@ -68,30 +65,35 @@ infectedEvolution <- function(spread){
   }
   infected
 }
-infectedEvolution(treeSpread)
 
-plot(infectedEvolution(treeSpread))
-
+#Run a simple simulation. Returns a vector with the number of infected persons in every simulation step.
 simulate <- function(graph,beta=.4,gamma=.8,p0=.05,tmax=30){
+  #initialise an infection of 5%
   initialInfected <- sample(c(1,0),length(V(graph)),replace=T,prob=c(p0,1-p0))
+  
   treeSpread <- spread(as_adj(graph),v=initialInfected,tmax=tmax,beta=beta,gamma=gamma)
-  infectedEvolution(treeSpread)
+  simulation <- infectedEvolution(treeSpread)
+  #scale
+  simulation/length(V(graph))
 }
 
 
 # beta,gamma close to threshold -------------------------------------------
 
-#epsilon defines the percentage that beta/gamma differs from the threshold 1/lambda_1(graph)
-#The points are higher beta (above threshold), the lines is are lower beta (under threshold)
+#Run a double simulation with a beta-gamma value epsilon percentage above and below the threshold
+
 fullSimulationPlot <- function(graph,graphName,gamma,epsilon,threshold){
   betaThreshold <- gamma*threshold
   
   #above threshold
   highBeta <- min(1,betaThreshold*(1+epsilon))
   yvalues <- simulate(graph,beta=highBeta,gamma=gamma,tmax=100)
-  plot(yvalues,ylim = c(0,max(yvalues)),main=graphName)
+  plot(yvalues,ylim = c(0,max(yvalues)),
+       main=graphName,
+       xlab="timestep",
+       ylab="fraction infected persons")
   
-  
+  #below threshold
   lowBeta <- max(0,betaThreshold*(1-epsilon))
   lines(simulate(graph,beta=lowBeta,gamma=gamma,tmax=100),col="red")
   
@@ -100,13 +102,13 @@ fullSimulationPlot <- function(graph,graphName,gamma,epsilon,threshold){
 
 thresholds = 1/sapply(graphs,largestEigenvalue)
 
-
-
-
-png(file="../images/thresholdSimulation")
-par(mfrow=c(2,2))
-for(i in 1:4){
-  fullSimulationPlot(graphs[[i]],graphNames[i],gamma=.4,epsilon=.2,thresholds[[i]])
+set.seed(6)
+#setwd("~/Desktop/CSN-Labs/Lab7")
+plotGraphs <- function(epsilon,save=F){
+  for(i in 1:5){
+    if(save) pdf(file=paste("images//thresholdSimulation_",graphNames[[i]],".png", sep=""))
+    fullSimulationPlot(graphs[[i]],graphNames[i],gamma=.1,epsilon=epsilon,thresholds[[i]])
+    if(save) dev.off()
+  }
 }
-dev.off()
-
+plotGraphs(epsilon=.1,save=T)
