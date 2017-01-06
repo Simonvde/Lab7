@@ -129,13 +129,15 @@ The following graphs are the result of a simulation on $5$ different graphs with
 \end{figure}
 
 \section{Discussion}
-We notice that we see we crossed a threshold value for the complete and the Erdos-Renyi graph. The star graph, tree and scalefree graph, however, do not seem to have crossed any threshold. If we would 
+We notice that we see we crossed a threshold value for the complete graph, the Erdos-Renyi graph and the scalefree graph. The star graph, tree, however, do not seem to have crossed any threshold. If we would 
 
-From this, we can conclude that the theory doesn't hold for some graphs. To be sure it does hold for the complete and Erdos-Renyi graph, we would have to do some more tests (values closer to the threshold, different numbers of vertices, run the simulation longer), but we are confident there is a clear threshold here.
+From this, we can conclude that the theory doesn't hold for some graph, in particular it doesn't hold for the trees we tested it on. To be sure it does hold for the complete, Erdos-Renyi and scalefree graph, we would have to do some more tests (values closer to the threshold, different numbers of vertices, run the simulation longer), but we are confident there is a threshold here.
 
 \section{Methods}
 To find the thresholds we used ARPACK, a package partially built in in igraph. It has fast methods for calculating the largest eigenvalue of a graph. Calculating the $5$ eigenvalues of the $5$ graphs with $2000$ vertices only takes seconds.
 
 For generating the graphs and plots we set a seed so it can be easily replicated.
+
+We chose the parameters for the Erdos-Renyi and scalefree graph so that they both had about $20000$ edges.
 
 \end{document}
