@@ -41,7 +41,7 @@ star <- make_star(n,mode=c("undirected"))
 kn <- graph_from_adjacency_matrix(knMatrix,mode=c("undirected"))
 
 graphs <- list(tree,scaleF,erdosRenyi,kn,star)
-graphNames <- c("tree","scaleFree","Erdos Renyi","complete","star")
+graphNames <- c("tree","scaleFree","Erdos-Renyi","complete","star")
 # Generate eigenvalues -----------------------------------------------------
 
 
@@ -111,17 +111,20 @@ plotGraphs <- function(epsilon,save=F){
     if(save) dev.off()
   }
 }
-plotGraphs(epsilon=.1,save=T)
+plotGraphs(epsilon=.1,save=F)
 
 
 
 #task1 (fixed parameters, no threshold)
 fixedbeta <- 0.005
 fixedgamma <- 0.05
+boolSave <- F
 for(i in 1:5){
+  if(boolSave) pdf(file=paste("images//task1_",graphNames[[i]],".png", sep=""))
   yvalues <- simulate(graphs[[i]],beta=fixedbeta,gamma=fixedgamma,tmax=500)
   plot(yvalues,ylim = c(0,max(yvalues)),
        main=graphNames[i],
        xlab="time",
        ylab="fraction infected people",type="l")
+  if(boolSave) dev.off()
 }
