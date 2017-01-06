@@ -41,7 +41,7 @@ star <- make_star(n,mode=c("undirected"))
 kn <- graph_from_adjacency_matrix(knMatrix,mode=c("undirected"))
 
 graphs <- list(tree,scaleF,erdosRenyi,kn,star)
-graphNames <- c("tree","scaleFree","erdosRenyi","complete","star")
+graphNames <- c("tree","scaleFree","Erdos Renyi","complete","star")
 # Generate eigenvalues -----------------------------------------------------
 
 
@@ -87,15 +87,15 @@ fullSimulationPlot <- function(graph,graphName,gamma,epsilon,threshold){
   
   #above threshold
   highBeta <- min(1,betaThreshold*(1+epsilon))
-  yvalues <- simulate(graph,beta=highBeta,gamma=gamma,tmax=100)
+  yvalues <- simulate(graph,beta=highBeta,gamma=gamma,tmax=250)
   plot(yvalues,ylim = c(0,max(yvalues)),
        main=graphName,
        xlab="timestep",
-       ylab="fraction infected persons")
+       ylab="fraction infected persons",type="l")
   
   #below threshold
   lowBeta <- max(0,betaThreshold*(1-epsilon))
-  lines(simulate(graph,beta=lowBeta,gamma=gamma,tmax=100),col="red")
+  lines(simulate(graph,beta=lowBeta,gamma=gamma,tmax=250),col="red")
   
   print(c(lowBeta,highBeta,gamma))
 }
@@ -112,3 +112,16 @@ plotGraphs <- function(epsilon,save=F){
   }
 }
 plotGraphs(epsilon=.1,save=T)
+
+
+
+#task1 (fixed parameters, no threshold)
+fixedbeta <- 0.005
+fixedgamma <- 0.05
+for(i in 1:5){
+  yvalues <- simulate(graphs[[i]],beta=fixedbeta,gamma=fixedgamma,tmax=500)
+  plot(yvalues,ylim = c(0,max(yvalues)),
+       main=graphNames[i],
+       xlab="time",
+       ylab="fraction infected people",type="l")
+}

@@ -99,7 +99,41 @@ We will simulate a SIS epidemic model on networks. We will use a binary tree, a 
 
 
 \section{Results}
+\subsection{Task 1}
+In this first section we present the results of the simulation using fixed parameters $\gamma=0.05$ and $\beta=0.005$ for all 5 networks.  Figures \ref{task1_tree}, \ref{task1_scaleFree}, \ref{task1_erdosrenyi}, \ref{task1_complete} and \ref{task1_star}.
+\begin{figure}[!h] %  figure placement: here, top, bottom, or page
+   \centering
+   \includegraphics[width=0.85\textwidth]{task1_tree} 
+   \caption{Task 1. Fixed parameters $\gamma=0.05$ and $\beta=0.005$}
+   \label{task1_tree}
+\end{figure}
+\begin{figure}[!h] %  figure placement: here, top, bottom, or page
+   \centering
+   \includegraphics[width=0.85\textwidth]{task1_scaleFree}
+\caption{Task 1. Fixed parameters $\gamma=0.05$ and $\beta=0.005$} 
+\label{task1_scaleFree}
+\end{figure}
+\begin{figure}[!h] %  figure placement: here, top, bottom, or page
+   \centering
+   \includegraphics[width=0.85\textwidth]{task1_erdosrenyi} 
+\caption{Task 1. Fixed parameters $\gamma=0.05$ and $\beta=0.005$}
+   \label{task1_erdosrenyi}
+\end{figure}
+\begin{figure}[!h] %  figure placement: here, top, bottom, or page
+   \centering
+   \includegraphics[width=0.85\textwidth]{task1_complete} 
+\caption{Task 1. Fixed parameters $\gamma=0.05$ and $\beta=0.005$}
+   \label{task1_complete}
+\end{figure}
+\begin{figure}[!h] %  figure placement: here, top, bottom, or page
+   \centering
+   \includegraphics[width=0.85\textwidth]{task1_star} 
+\caption{Task 1. Fixed parameters $\gamma=0.05$ and $\beta=0.005$}
+   \label{task1_star}
+\end{figure}
 
+
+\subsection{Task 2}
 The following graphs are the result of a simulation on $5$ different graphs with $100$ timesteps. For every graph we took $\gamma=.1$, then we calculated the thresholdvalue for $\beta$. We increased $\beta$ by $10\%$ (plotted dots) and decreased $\beta$ by $10\%$ (plotted red line). We started with $5\%$ infected
 
 \begin{figure}[htbp] %  figure placement: here, top, bottom, or page
@@ -129,6 +163,12 @@ The following graphs are the result of a simulation on $5$ different graphs with
 \end{figure}
 
 \section{Discussion}
+\subsection{Task 1}
+In the simulations with fixed parameters of task 1 there is a big difference between the networks. In the densest ones (Erdös-Renyi, complete graph) the infection spreads very quickly and reaches all the nodes (at every time step we will only have a small fraction of non-infected nodes: those which recovered in the previous step), while in the tree and the scale-free networks the infection decreases until it goes extinct. In the case of the star graph, the number of infected nodes stays at slightly below 10\% of the nodes.
+
+While it is obvious that edge density has an effect on determining whether an infection spreads or goes extinct, notice that the tree and star graphs have the same edge density completely different behaviours. From this, we can conclude that the shape of the network also plays an important role.
+
+\subsection{Task 2}
 We notice that we see we crossed a threshold value for the complete graph, the Erdos-Renyi graph and the scalefree graph. The star graph, tree, however, do not seem to have crossed any threshold. If we would 
 
 From this, we can conclude that the theory doesn't hold for some graph, in particular it doesn't hold for the trees we tested it on. To be sure it does hold for the complete, Erdos-Renyi and scalefree graph, we would have to do some more tests (values closer to the threshold, different numbers of vertices, run the simulation longer), but we are confident there is a threshold here.
@@ -139,5 +179,13 @@ To find the thresholds we used ARPACK, a package partially built in in igraph. I
 For generating the graphs and plots we set a seed so it can be easily replicated.
 
 We chose the parameters for the Erdos-Renyi and scalefree graph so that they both had about $20000$ edges.
+
+\subsection{SIS infection simulation}
+The SIS infection simulation is done by the function \texttt{spread}, in \texttt{Lab7.R}. This function receives as input the adjacency matrix $M$ of the network, a vector $v$ indicating which nodes are infected at the initial time, the parameters $\beta$ and $\gamma$, and $tmax$, the maximum time for which we will run the simulation. 
+
+First, it computes $n_{inf}=M v$ the vector counting how many infected neighbours each node has. Then we consider a node $i$ to get infected if $n_{inf}[i]$ is strictly bigger than a random sample from a geometric distribution with probability $\beta$ (the geometric distribution counts how many failures happen before the first "successful" infection. Therefore, if a node has less infected neighbours than this number, it will not get infected). The implementation of this step is very straightforward using the R function \texttt{rbinom}.
+
+To simulate which infected nodes get cured, a sample of the binomial distribution with size 1 and probability $\gamma$ is generated with \texttt{rbinom}. Then, we update the states of the nodes as follows: a node is infected if it already was and has not been cured, or if it has been infected by a neighbour.
+
 
 \end{document}
